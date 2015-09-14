@@ -2,8 +2,8 @@
 <!-- convert dccd xml (from RESTfull API) to ARIADNE acdm -->
 <xsl:stylesheet version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-
-	xmlns:dccd="dccd.lookup" exclude-result-prefixes="xsl xs dccd">
+	xmlns:dccd="dccd.lookup" 
+	exclude-result-prefixes="xsl xs dccd">
 
 	<xsl:output indent="yes" encoding="UTF-8"
 		omit-xml-declaration="yes" />
@@ -130,8 +130,6 @@
 			</xsl:for-each>
 
 			<!-- SUBJECT -->
-			<!-- <xsl:element name="dcterms:subject"> <xsl:value-of select="category" 
-				/> </xsl:element> -->
 			<xsl:for-each select="category">
 				<!-- use uri, reference to vocabulary in SKOS -->
 				<xsl:element name="acdm:nativeSubject">
@@ -140,7 +138,7 @@
 							<xsl:call-template
 							name="dccd_categoryUri">
 								<xsl:with-param name="label"
-							select="text()" />
+							select="lower-case(text())" />
 							</xsl:call-template>
 						</xsl:attribute>
 						<!-- Also use human readable text -->
@@ -151,8 +149,6 @@
 				</xsl:element>
 			</xsl:for-each>
 
-			<!-- <xsl:for-each select="types/type"> <xsl:element name="dcterms:subject"><xsl:value-of 
-				select="text()" /></xsl:element> </xsl:for-each> -->
 			<xsl:for-each select="types/type">
 				<!-- use uri, reference to vocabulary in SKOS -->
 				<xsl:element name="acdm:nativeSubject">
@@ -161,7 +157,7 @@
 							<xsl:call-template
 							name="dccd_typeUri">
 								<xsl:with-param name="label"
-							select="text()" />
+							select="lower-case(text())" />
 							</xsl:call-template>
 						</xsl:attribute>
 						<!-- Also use human readable text -->
@@ -171,7 +167,6 @@
 					</xsl:element>
 				</xsl:element>
 			</xsl:for-each>
-
 			<!-- Note: If we can only have one subject we take the most important 
 				and add the others as keywords! But they should be uri's from SKOS vocabularies. -->
 			<!-- KEYWORD dcat:keyword -->
@@ -238,7 +233,7 @@
 		<dccd:category>
 			<dccd:label>archaeology</dccd:label>
 			<dccd:label>archeologie</dccd:label>
-			<dccd:label>Archäologie</dccd:label>
+			<dccd:label>archäologie</dccd:label>
 			<dccd:label>archéologie</dccd:label>
 			<dccd:uri>http://dendro.dans.knaw.nl/dccd-terms/4dcd4d86-2d96-497f-9e09-aacda714aa24
 			</dccd:uri>
@@ -246,7 +241,7 @@
 		<dccd:category>
 			<dccd:label>built heritage</dccd:label>
 			<dccd:label>gebouwd erfgoed</dccd:label>
-			<dccd:label>Baudenkmalpflege</dccd:label>
+			<dccd:label>baudenkmalpflege</dccd:label>
 			<dccd:label>patrimoine immobilier</dccd:label>
 			<dccd:uri>http://dendro.dans.knaw.nl/dccd-terms/a9ec656f-1bd3-4a30-bd5a-d012b16e496f
 			</dccd:uri>
@@ -254,7 +249,7 @@
 		<dccd:category>
 			<dccd:label>furniture</dccd:label>
 			<dccd:label>meubilair</dccd:label>
-			<dccd:label>Möbel</dccd:label>
+			<dccd:label>möbel</dccd:label>
 			<dccd:label>mobilier</dccd:label>
 			<dccd:uri>http://dendro.dans.knaw.nl/dccd-terms/fbd9f1b6-7933-416d-886d-6ee6d5b4d679
 			</dccd:uri>
@@ -270,7 +265,7 @@
 		<dccd:category>
 			<dccd:label>musical instrument</dccd:label>
 			<dccd:label>muziek instrument</dccd:label>
-			<dccd:label>Musikinstrument</dccd:label>
+			<dccd:label>musikinstrument</dccd:label>
 			<dccd:label>instrument de musique</dccd:label>
 			<dccd:uri>http://dendro.dans.knaw.nl/dccd-terms/ce9f00c4-bdf2-4a17-93f8-4f243b8a246a
 			</dccd:uri>
@@ -278,7 +273,7 @@
 		<dccd:category>
 			<dccd:label>painting</dccd:label>
 			<dccd:label>schilderij</dccd:label>
-			<dccd:label>Gemälde</dccd:label>
+			<dccd:label>gemälde</dccd:label>
 			<dccd:label>peinture</dccd:label>
 			<dccd:uri>http://dendro.dans.knaw.nl/dccd-terms/711a46f3-6341-4739-9084-8f5c74391d9b
 			</dccd:uri>
@@ -286,7 +281,7 @@
 		<dccd:category>
 			<dccd:label>palaeo-vegetation</dccd:label>
 			<dccd:label>paleo-vegetatie</dccd:label>
-			<dccd:label>Paläovegetation</dccd:label>
+			<dccd:label>paläovegetation</dccd:label>
 			<dccd:label>paléo-végétation</dccd:label>
 			<dccd:uri>http://dendro.dans.knaw.nl/dccd-terms/75966336-9fd7-4e02-9ca8-75ae1f97236b
 			</dccd:uri>
@@ -294,7 +289,7 @@
 		<dccd:category>
 			<dccd:label>ship archaeology</dccd:label>
 			<dccd:label>scheepsarcheologie</dccd:label>
-			<dccd:label>Schiffarchäologie</dccd:label>
+			<dccd:label>schiffarchäologie</dccd:label>
 			<dccd:label>archéologie navale</dccd:label>
 			<dccd:uri>http://dendro.dans.knaw.nl/dccd-terms/58cc5d6e-56bf-4f75-bb1e-207e206cda22
 			</dccd:uri>
@@ -310,7 +305,7 @@
 		<dccd:category>
 			<dccd:label>woodcarving</dccd:label>
 			<dccd:label>houtsnijwerk</dccd:label>
-			<dccd:label>Holzschnitzarbeit</dccd:label>
+			<dccd:label>holzschnitzarbeit</dccd:label>
 			<dccd:label>sculpture sur bois</dccd:label>
 			<dccd:uri>http://dendro.dans.knaw.nl/dccd-terms/56eac9df-7992-49d7-b614-e903636dae48
 			</dccd:uri>
