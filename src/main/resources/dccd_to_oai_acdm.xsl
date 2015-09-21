@@ -18,213 +18,223 @@
 	</xsl:template>
 
 	<xsl:template name="dccd-root">
-		<!-- <xsl:result-document href="acdm_out.xml"> just make oxygen happy! -->
 		<xsl:apply-templates select="project" />
-		<!-- </xsl:result-document> just make oxygen happy! -->
 	</xsl:template>
 
 	<xsl:template match="project">
-		<acdm:dataResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			xmlns:acdm="http://ariadne-registry.dcu.gr/schema-definition"
+		<acdm:ariadneArchaeologicalResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xmlns:acdm="http://schemas.cloud.dcu.gr/ariadne-registry/"
 			xmlns:dcat="http://www.w3.org/ns/dcat#" xmlns:dcterms="http://purl.org/dc/terms/"
 			xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 			xmlns:skos="http://www.w3.org/2004/02/skos/core#"
-			xsi:schemaLocation="http://ariadne-registry.dcu.gr/schema-definition http://ariadne-registry.dcu.gr/schema-definition/sample_ariadne_xml.xsd">
-
-			<!-- TITLE -->
-			<xsl:element name="dcterms:title">
-				<xsl:value-of select="title" />
-			</xsl:element>
-
-			<!-- DESCRIPTION -->
-			<!-- NO dcterms:description; The TRiDaS description is not Open Access information in DCCD -->
-
-			<!-- DATE ISSUED -->
-			<xsl:for-each select="stateChanged">
-				<xsl:element name="dcterms:issued">
-					<xsl:value-of select="text()" />
+			xmlns:foaf="http://xmlns.com/foaf/0.1/"
+			xsi:schemaLocation="http://schemas.cloud.dcu.gr/ariadne-registry/ http://schemas.cloud.dcu.gr/ariadne-registry/sample_ariadne_xml.xsd">
+			<acdm:collection>
+				<xsl:element name="dcterms:isPartOf">
+					<xsl:text>DCCD</xsl:text>
 				</xsl:element>
-			</xsl:for-each>
 
-			<!-- DATE MODIFIED -->
-			<!-- same as date issued, we only have the (last) archived date we could 
-				try to get it from deeper in the TRiDaS -->
-			<xsl:for-each select="stateChanged">
-				<xsl:element name="dcterms:modified">
-					<xsl:value-of select="text()" />
-				</xsl:element>
-			</xsl:for-each>
-
-			<!-- ORIGINAL IDENTIFIER -->
-			<!-- repository id -->
-			<xsl:for-each select="sid">
-				<xsl:element name="acdm:originalId">
-					<xsl:attribute name="preferred">true</xsl:attribute>
-					<xsl:value-of select="text()" />
-				</xsl:element>
-			</xsl:for-each>
-			<!-- TRiDaS project identifier -->
-			<xsl:element name="acdm:originalId">
-				<xsl:attribute name="preferred">false</xsl:attribute>
-				<xsl:value-of select="identifier" />
-			</xsl:element>
-
-			<!-- LANDING PAGE -->
-			<!-- use DCCD identifier -->
-			<xsl:for-each select="sid">
-				<xsl:element name="dcat:landingPage">
-					<xsl:text>http://dendro.dans.knaw.nl/project/</xsl:text>
-					<xsl:value-of select="text()" />
-				</xsl:element>
-			</xsl:for-each>
-
-			<!-- PUBLISHER -->
-			<!-- <xsl:for-each select=""> <xsl:element name="dcterms:publisher"> <xsl:value-of 
+				<!-- PUBLISHER -->
+				<!-- <xsl:for-each select=""> <xsl:element name="dcterms:publisher"> <xsl:value-of 
 				select="text()" /> </xsl:element> </xsl:for-each> -->
-
-			<!-- acdm:scientificResponsible, could be laboratory leader -->
-			<!-- acdm:technicalResponsible, could be analyst -->
-
-			<!-- OWNER -->
-			<!-- This should indicate an Agent, but we can't guarantee uniquenes -->
-			<xsl:for-each select="ownerOrganizationId">
-				<xsl:element name="acdm:owner">
-					<xsl:value-of select="text()" />
-				</xsl:element>
-			</xsl:for-each>
-
-			<!-- Not using (creator, legalResponsible) -->
-
-			<!-- LANGUAGE -->
-			<xsl:for-each select="language">
-				<xsl:element name="dcterms:language">
-					<xsl:value-of select="text()" />
-				</xsl:element>
-			</xsl:for-each>
-
-			<xsl:element name="dcterms:isPartOf">
-				<xsl:text>DCCD</xsl:text>
-			</xsl:element>
-
-			<!-- archaeologicalResourceType previously ARIADNESUBJECT -->
-			<xsl:element name="acdm:archaeologicalResourceType">
-				<xsl:text>Scientific databases</xsl:text>
-			</xsl:element>
-			<!-- <dc:type><xsl:text>name=TRiDaS; URI=http://www.tridas.org</xsl:text></dc:type> 
-				<dc:format>application/xml</dc:format> -->
-
-			<!-- RIGHTS -->
-			<!-- accessRights -->
-			<xsl:for-each select="permission">
-				<xsl:element name="dcterms:accessRights">
-					<xsl:choose>
-						<xsl:when test="defaultLevel/text()='minimal'">
-							<xsl:text>Restricted access for all levels of detail</xsl:text>
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:text>Restricted access for levels more detailed than: </xsl:text>
-							<xsl:value-of select="defaultLevel" />
-						</xsl:otherwise>
-					</xsl:choose>
-				</xsl:element>
-			</xsl:for-each>
-
-			<!-- SUBJECT -->
-			<xsl:for-each select="category">
-				<!-- use uri, reference to vocabulary in SKOS -->
-				<xsl:element name="acdm:nativeSubject">
-					<xsl:element name="skos:Concept">
-						<xsl:attribute name="rdf:about">
-							<xsl:call-template
-							name="dccd_categoryUri">
-								<xsl:with-param name="label"
-							select="lower-case(text())" />
-							</xsl:call-template>
-						</xsl:attribute>
-						<!-- Also use human readable text -->
-						<xsl:element name="skos:prefLabel">
+				
+				<!-- Not using (creator, legalResponsible) -->
+				
+				<!-- OWNER -->
+				<!-- This should indicate an Agent, but we can't guarantee uniquenes -->
+				<xsl:for-each select="ownerOrganizationId">
+					<xsl:element name="acdm:owner">
+						<xsl:element name="foaf:name">
 							<xsl:value-of select="text()" />
 						</xsl:element>
-					</xsl:element>
-				</xsl:element>
-			</xsl:for-each>
-
-			<xsl:for-each select="types/type">
-				<!-- use uri, reference to vocabulary in SKOS -->
-				<xsl:element name="acdm:nativeSubject">
-					<xsl:element name="skos:Concept">
-						<xsl:attribute name="rdf:about">
-							<xsl:call-template
-							name="dccd_typeUri">
-								<xsl:with-param name="label"
-							select="lower-case(text())" />
-							</xsl:call-template>
-						</xsl:attribute>
-						<!-- Also use human readable text -->
-						<xsl:element name="skos:prefLabel">
-							<xsl:value-of select="text()" />
+						<xsl:element name="acdm:typeOfAnAgent">
+							<xsl:text>Organization</xsl:text>
+						</xsl:element>
+						<xsl:element name="foaf:mbox">
+							<xsl:text>Not available</xsl:text>
 						</xsl:element>
 					</xsl:element>
+				</xsl:for-each>
+				
+				<!-- acdm:scientificResponsible, could be laboratory leader -->
+				
+				<!-- acdm:technicalResponsible, could be analyst -->
+
+				<!-- SUBJECT -->
+				<xsl:for-each select="category">
+					<!-- use uri, reference to vocabulary in SKOS -->
+					<xsl:element name="acdm:nativeSubject">
+						<xsl:element name="skos:Concept">
+							<xsl:attribute name="rdf:about">
+								<xsl:call-template
+									name="dccd_categoryUri">
+									<xsl:with-param name="label"
+										select="lower-case(text())" />
+								</xsl:call-template>
+							</xsl:attribute>
+							<!-- Also use human readable text -->
+							<xsl:element name="skos:prefLabel">
+								<xsl:value-of select="text()" />
+							</xsl:element>
+						</xsl:element>
+					</xsl:element>
+				</xsl:for-each>
+				
+				<xsl:for-each select="types/type">
+					<!-- use uri, reference to vocabulary in SKOS -->
+					<xsl:element name="acdm:nativeSubject">
+						<xsl:element name="skos:Concept">
+							<xsl:attribute name="rdf:about">
+								<xsl:call-template
+									name="dccd_typeUri">
+									<xsl:with-param name="label"
+										select="lower-case(text())" />
+								</xsl:call-template>
+							</xsl:attribute>
+							<!-- Also use human readable text -->
+							<xsl:element name="skos:prefLabel">
+								<xsl:value-of select="text()" />
+							</xsl:element>
+						</xsl:element>
+					</xsl:element>
+				</xsl:for-each>
+
+				<!-- TITLE -->
+				<xsl:element name="dcterms:title">
+					<xsl:value-of select="title" />
 				</xsl:element>
-			</xsl:for-each>
-			<!-- Note: If we can only have one subject we take the most important 
+				
+				<!-- DESCRIPTION -->
+				<!-- NO dcterms:description; The TRiDaS description is not Open Access information in DCCD -->
+				
+				<!-- DATE ISSUED -->
+				<xsl:for-each select="stateChanged">
+					<xsl:element name="dcterms:issued">
+						<xsl:value-of select="text()" />
+					</xsl:element>
+				</xsl:for-each>
+				
+				<!-- DATE MODIFIED -->
+				<!-- same as date issued, we only have the (last) archived date we could 
+				try to get it from deeper in the TRiDaS -->
+				<xsl:for-each select="stateChanged">
+					<xsl:element name="dcterms:modified">
+						<xsl:value-of select="text()" />
+					</xsl:element>
+				</xsl:for-each>
+				
+				<!-- ORIGINAL IDENTIFIER -->
+				<!-- repository id -->
+				<xsl:for-each select="sid">
+					<xsl:element name="acdm:originalId">
+						<xsl:attribute name="preferred">true</xsl:attribute>
+						<xsl:value-of select="text()" />
+					</xsl:element>
+				</xsl:for-each>
+				<!-- TRiDaS project identifier -->
+				<xsl:element name="acdm:originalId">
+					<xsl:attribute name="preferred">false</xsl:attribute>
+					<xsl:value-of select="identifier" />
+				</xsl:element>
+
+				<!-- Note: If we can only have one subject we take the most important 
 				and add the others as keywords! But they should be uri's from SKOS vocabularies. -->
-			<!-- KEYWORD dcat:keyword -->
-			<!-- No URI's yet for the following terms, use keywords instead! -->
-			<xsl:for-each select="objectTypes/objectType">
-				<xsl:element name="dcat:keyword">
-					<xsl:value-of select="text()" />
-				</xsl:element>
-			</xsl:for-each>
-			<xsl:for-each select="elementTypes/elementType">
-				<xsl:element name="dcat:keyword">
-					<xsl:value-of select="text()" />
-				</xsl:element>
-			</xsl:for-each>
-			<xsl:for-each select="taxons/taxon">
-				<xsl:element name="dcat:keyword">
-					<xsl:value-of select="text()" />
-				</xsl:element>
-			</xsl:for-each>
+				<!-- KEYWORD dcat:keyword -->
+				<!-- No URI's yet for the following terms, use keywords instead! -->
+				<xsl:for-each select="objectTypes/objectType">
+					<xsl:element name="dcat:keyword">
+						<xsl:value-of select="text()" />
+					</xsl:element>
+				</xsl:for-each>
+				<xsl:for-each select="elementTypes/elementType">
+					<xsl:element name="dcat:keyword">
+						<xsl:value-of select="text()" />
+					</xsl:element>
+				</xsl:for-each>
+				<xsl:for-each select="taxons/taxon">
+					<xsl:element name="dcat:keyword">
+						<xsl:value-of select="text()" />
+					</xsl:element>
+				</xsl:for-each>
 
-			<!-- SPATIAL -->
-			<xsl:for-each select="location">
-				<!-- point -->
-				<xsl:element name="acdm:spatial">
-					<xsl:element name="acdm:lat">
-						<xsl:value-of select="lat" />
+				<!-- LANGUAGE -->
+				<xsl:for-each select="language">
+					<xsl:element name="dcterms:language">
+						<xsl:value-of select="text()" />
 					</xsl:element>
-					<xsl:element name="acdm:lon">
-						<xsl:value-of select="lng" />
+				</xsl:for-each>
+				
+				<!-- LANDING PAGE -->
+				<!-- use DCCD identifier -->
+				<xsl:for-each select="sid">
+					<xsl:element name="dcat:landingPage">
+						<xsl:text>http://dendro.dans.knaw.nl/project/</xsl:text>
+						<xsl:value-of select="text()" />
 					</xsl:element>
-					<xsl:element name="acdm:coordinateSystem">
-						<xsl:text>http://www.opengis.net/def/crs/EPSG/0/4326</xsl:text>
-					</xsl:element>
-					<xsl:element name="acdm:placeName">
-						<xsl:text>Not available</xsl:text>
-					</xsl:element>
-					<xsl:element name="acdm:country">
-						<xsl:text>Not available</xsl:text>
-					</xsl:element>
-				</xsl:element>
-			</xsl:for-each>
+				</xsl:for-each>			
 
-			<!-- TEMPORAL -->
-			<xsl:for-each select="timeRange">
-				<xsl:element name="acdm:temporal">
-					<xsl:element name="acdm:from">
-						<xsl:value-of select="firstYear" />
+				<!-- RIGHTS -->
+				<!-- accessRights -->
+				<xsl:for-each select="permission">
+					<xsl:element name="dcterms:accessRights">
+						<xsl:choose>
+							<xsl:when test="defaultLevel/text()='minimal'">
+								<xsl:text>Restricted access for all levels of detail</xsl:text>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:text>Restricted access for levels more detailed than: </xsl:text>
+								<xsl:value-of select="defaultLevel" />
+							</xsl:otherwise>
+						</xsl:choose>
 					</xsl:element>
-					<xsl:element name="acdm:to">
-						<xsl:value-of select="lastYear" />
-					</xsl:element>
-					<xsl:element name="acdm:periodName">
-						<xsl:text>Not available</xsl:text>
-					</xsl:element>
+				</xsl:for-each>
+				
+				<!-- archaeologicalResourceType previously ARIADNESUBJECT -->
+				<xsl:element name="acdm:archaeologicalResourceType">
+					<xsl:text>Scientific datasets</xsl:text>
 				</xsl:element>
-			</xsl:for-each>
+				<!-- <dc:type><xsl:text>name=TRiDaS; URI=http://www.tridas.org</xsl:text></dc:type> 
+				<dc:format>application/xml</dc:format> -->
+				
+				<!-- TEMPORAL -->
+				<xsl:for-each select="timeRange">
+					<xsl:element name="acdm:temporal">
+						<xsl:element name="acdm:periodName">
+							<xsl:text>All</xsl:text><!-- Not available -->
+						</xsl:element>
+						<xsl:element name="acdm:from">
+							<xsl:value-of select="firstYear" />
+						</xsl:element>
+						<xsl:element name="acdm:until">
+							<xsl:value-of select="lastYear" />
+						</xsl:element>
+					</xsl:element>
+				</xsl:for-each>
 
-		</acdm:dataResource>
+				<!-- SPATIAL -->
+				<xsl:for-each select="location">
+					<!-- point -->
+					<xsl:element name="acdm:spatial">
+						<xsl:element name="acdm:placeName">
+							<xsl:text>Not available</xsl:text>
+						</xsl:element>
+						<xsl:element name="acdm:coordinateSystem">
+							<xsl:text>http://www.opengis.net/def/crs/EPSG/0/4326</xsl:text>
+						</xsl:element>
+						<xsl:element name="acdm:lat">
+							<xsl:value-of select="lat" />
+						</xsl:element>
+						<xsl:element name="acdm:lon">
+							<xsl:value-of select="lng" />
+						</xsl:element>
+						<xsl:element name="acdm:country">
+							<xsl:text>Not available</xsl:text>
+						</xsl:element>
+					</xsl:element>
+				</xsl:for-each>
+
+			</acdm:collection>
+		</acdm:ariadneArchaeologicalResource>
 	</xsl:template>
 
 	<!-- =================================================================================== -->
