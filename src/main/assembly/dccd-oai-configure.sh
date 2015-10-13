@@ -61,6 +61,17 @@ function getExistingPwd()
     
 }
 
+#
+# Simply display message
+# Param 1 = Message
+#
+function showMessage()
+{
+	whiptail --backtitle "DCCD Server Configuration Wizard" --msgbox "$1" 10 70
+	clear
+}
+
+
 
 #########################################
 # Check if we're being run by root/sudo 
@@ -68,8 +79,6 @@ function getExistingPwd()
 if [ "$(id -u)" != "0" ]; then
 	echo "This script must be run by root or with sudo privileges"
 	exit 1
-else
-	showMessage "This wizard will collect the information required to configure and deploy your new DCCD Server, however, first we need to download installers for dependencies that are not available in the standard software repositories."
 fi
 
 #
