@@ -140,14 +140,25 @@
 					<prefix>/opt</prefix>
 					<mappings>
 						<mapping>
-							<directory>/opt/dccd</directory>
+							<directory>/opt/dccd/oai</directory>
 							<filemode>655</filemode>
 							<username>tomcat</username>
 							<groupname>tomcat</groupname>
 							<recurseDirectories>true</recurseDirectories>
 							<sources>
 								<source>
-									<location>target/dccd-oai.war</location>
+									<location>src/main/assembly/oai</location>
+								</source>
+							</sources>
+						</mapping>
+						<mapping>
+							<directory>/opt/dccd/oai/</directory>
+							<filemode>655</filemode>
+							<username>tomcat</username>
+							<groupname>tomcat</groupname>
+							<sources>
+								<source>
+									<location>src/main/resources/proai.properties</location>
 								</source>
 							</sources>
 						</mapping>

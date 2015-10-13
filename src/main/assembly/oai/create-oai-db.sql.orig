@@ -1,0 +1,2 @@
+CREATE ROLE proai WITH LOGIN PASSWORD '###Fill-In-proai-Password###';
+CREATE DATABASE proai WITH ENCODING='UTF8' OWNER=proai;
