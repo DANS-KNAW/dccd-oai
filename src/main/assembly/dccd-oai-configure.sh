@@ -99,16 +99,22 @@ su - postgres -c "psql -U postgres < /opt/dccd/oai/create-oai-db.sql"
 #
 # Set up the proai.properties file
 #
-cp /opt/dccd/oai/proai.properties.orig /opt/dccd/oai/proai.properties
-sed -i -e 's?###Fill-In-proai-Password###?'$dccd_oai'?' /opt/dccd/oai/proai.properties
-sed -i -e 's?###Fill-In-fedoraAdmin-Password###?'$fedoraAdmin'?' /opt/dccd/oai/proai.properties
+mkdir -p /opt/dccd/oai/WEB-INF/classes/
+cp /opt/dccd/oai/proai.properties.orig /opt/dccd/oai/WEB-INF/classes/proai.properties
+sed -i -e 's?###Fill-In-proai-Password###?'$dccd_oai'?' /opt/dccd/oai/WEB-INF/classes/proai.properties
+sed -i -e 's?###Fill-In-fedoraAdmin-Password###?'$fedoraAdmin'?' /opt/dccd/oai/WEB-INF/classes/proai.properties
 
 #
 # Replace proai.properties stub in war with our configured file
 #
-cd /opt/dccd/
-jar -uf dccd-oai.war /opt/dccd/oai/proai.properties
-#rm /opt/dccd/oai/proai.properties
+cd /opt/dccd/oai/
+jar -uf /opt/dccd/dccd-oai.war WEB-INF/classes/proai.properties
+#rm -rf /opt/dccd/oai/WEB-INF
+
+#
+# Make data folder and change it's ownership
+mkdir /data/proai
+chown -R tomcat:tomcat /data/proai
 
 #
 # Deploy war

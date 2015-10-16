@@ -174,18 +174,6 @@
 								</source>
 							</sources>
 						</mapping>
-						<mapping>
-							<directory>/usr/share/tomcat6/conf/Catalina/localhost/</directory>
-							<filemode>655</filemode>
-							<username>tomcat</username>
-							<groupname>tomcat</groupname>
-							<recurseDirectories>false</recurseDirectories>
-							<sources>
-								<source>
-									<location>src/main/assembly/oai/dccd-oai.xml</location>
-								</source>
-							</sources>
-						</mapping>
 					</mappings>
 					<requires>
 						<require>dccd-http</require>
