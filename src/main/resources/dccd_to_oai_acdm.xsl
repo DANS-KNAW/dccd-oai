@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- convert dccd xml (from RESTfull API) to ARIADNE acdm -->
 <xsl:stylesheet version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:dccd="dccd.lookup" 
+	xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:acdm="http://registry.ariadne-infrastructure.eu/"
 	exclude-result-prefixes="xsl xs dccd">
-
+	<!-- ==================================================== -->
+	<!-- metadata for ARIADNE Catalogue Data Model (ACDM) -->
+	<!-- converting from internal dccd xml (from RESTfull API) -->
+	<!-- ==================================================== -->
+	
 	<xsl:output indent="yes" encoding="UTF-8"
 		omit-xml-declaration="yes" />
 	<xsl:strip-space elements="*" />
@@ -23,22 +28,39 @@
 
 	<xsl:template match="project">
 		<acdm:ariadneArchaeologicalResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			xmlns:acdm="http://schemas.cloud.dcu.gr/ariadne-registry/"
+			xmlns:acdm="http://registry.ariadne-infrastructure.eu/"
 			xmlns:dcat="http://www.w3.org/ns/dcat#" xmlns:dcterms="http://purl.org/dc/terms/"
 			xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 			xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 			xmlns:foaf="http://xmlns.com/foaf/0.1/"
-			xsi:schemaLocation="http://schemas.cloud.dcu.gr/ariadne-registry/ http://schemas.cloud.dcu.gr/ariadne-registry/sample_ariadne_xml.xsd">
+			xsi:schemaLocation="http://registry.ariadne-infrastructure.eu/ http://registry.ariadne-infrastructure.eu/schema_definition/6.8/acdm.xsd">
 			<acdm:collection>
 				<xsl:element name="dcterms:isPartOf">
 					<xsl:text>DCCD</xsl:text>
 				</xsl:element>
 
 				<!-- PUBLISHER -->
-				<!-- <xsl:for-each select=""> <xsl:element name="dcterms:publisher"> <xsl:value-of 
-				select="text()" /> </xsl:element> </xsl:for-each> -->
-				
-				<!-- Not using (creator, legalResponsible) -->
+				<xsl:element name="acdm:publisher">
+					<xsl:call-template name="organization-agent">
+						<xsl:with-param name="name" select="'Not available'" />
+					</xsl:call-template>
+				</xsl:element>         
+
+				<!-- CONTRIBUTER -->
+				<!-- in acdm contributers are mandatory, it makes no sense, but here it is -->
+				<xsl:element name="acdm:contributor">
+					<xsl:call-template name="person-agent">
+						<xsl:with-param name="name" select="'Not available'" />
+					</xsl:call-template>
+				</xsl:element>
+
+				<!-- CREATOR -->
+				<!-- we don't have it -->
+				<xsl:element name="acdm:creator">
+					<xsl:call-template name="person-agent">
+						<xsl:with-param name="name" select="'Not available'" />
+					</xsl:call-template>
+				</xsl:element>				
 				
 				<!-- OWNER -->
 				<!-- This should indicate an Agent, but we can't guarantee uniquenes -->
@@ -56,11 +78,27 @@
 					</xsl:element>
 				</xsl:for-each>
 				
-				<!-- acdm:scientificResponsible, could be laboratory leader -->
-				
+				<!--  TECHNICAL RESPONSIBLE, we don't have it! -->
 				<!-- acdm:technicalResponsible, could be analyst -->
+				<xsl:element name="acdm:technicalResponsible">
+					<xsl:call-template name="person-agent">
+						<xsl:with-param name="name" select="'Not available'" />
+					</xsl:call-template>
+				</xsl:element>    
 
 				<!-- SUBJECT -->
+				<!-- make validation work and specify dendrochronology as subject -->
+				<xsl:element name="acdm:ariadneSubject">
+					<xsl:comment>Should be replaced by a mapping from the nativeSubject</xsl:comment>
+					<xsl:element name="acdm:provided_Subject">
+						<xsl:element name="skos:prefLabel">dendrochronology</xsl:element>
+						<xsl:element name="dc:source"></xsl:element>
+						<xsl:element name="acdm:published"></xsl:element>
+						<xsl:element name="dc:language">en</xsl:element>
+						<xsl:element name="acdm:provided">True</xsl:element><!-- Yes, I kid you not -->
+					</xsl:element>
+				</xsl:element>
+				<!-- nativeSubject will be mapped to a skos concept (AAT) by the consumer of this -->
 				<xsl:for-each select="category">
 					<!-- use uri, reference to vocabulary in SKOS -->
 					<xsl:element name="acdm:nativeSubject">
@@ -79,7 +117,6 @@
 						</xsl:element>
 					</xsl:element>
 				</xsl:for-each>
-				
 				<xsl:for-each select="types/type">
 					<!-- use uri, reference to vocabulary in SKOS -->
 					<xsl:element name="acdm:nativeSubject">
@@ -127,16 +164,20 @@
 				<!-- repository id -->
 				<xsl:for-each select="sid">
 					<xsl:element name="acdm:originalId">
+						<!--  Not valid to the schema
 						<xsl:attribute name="preferred">true</xsl:attribute>
+						 -->
 						<xsl:value-of select="text()" />
 					</xsl:element>
 				</xsl:for-each>
 				<!-- TRiDaS project identifier -->
+				<!--  Not valid to the schema
 				<xsl:element name="acdm:originalId">
 					<xsl:attribute name="preferred">false</xsl:attribute>
 					<xsl:value-of select="identifier" />
 				</xsl:element>
-
+ 				-->
+				
 				<!-- Note: If we can only have one subject we take the most important 
 				and add the others as keywords! But they should be uri's from SKOS vocabularies. -->
 				<!-- KEYWORD dcat:keyword -->
@@ -156,10 +197,14 @@
 						<xsl:value-of select="text()" />
 					</xsl:element>
 				</xsl:for-each>
-
+				<!-- TRiDaS project identifier, could not be an originalId -->
+				<xsl:element name="dcat:keyword">
+					<xsl:value-of select="identifier" />
+				</xsl:element>
+				
 				<!-- LANGUAGE -->
 				<xsl:for-each select="language">
-					<xsl:element name="dcterms:language">
+					<xsl:element name="dc:language">
 						<xsl:value-of select="text()" />
 					</xsl:element>
 				</xsl:for-each>
@@ -200,13 +245,31 @@
 				<xsl:for-each select="timeRange">
 					<xsl:element name="acdm:temporal">
 						<xsl:element name="acdm:periodName">
-							<xsl:text>All</xsl:text><!-- Not available -->
+							<!-- Not available -->
+							<!-- could try to get ABR concept from the year-range, 
+								but not the wood is from all over europe, so ABR makes no sense! -->
+							<!-- Holocene probably covers all our wood samples ;-) -->
+							<xsl:comment>Not available, but this is the most likely range that covers it</xsl:comment>
+							<xsl:element name="skos:Concept">
+								<xsl:attribute name="rdf:about">
+									<xsl:text>http://vocab.getty.edu/aat/300391280</xsl:text>
+								</xsl:attribute>
+								<xsl:element name="skos:prefLabel">
+									<xsl:text>Holocene</xsl:text>
+								</xsl:element>
+							</xsl:element>
 						</xsl:element>
 						<xsl:element name="acdm:from">
-							<xsl:value-of select="firstYear" />
+							<xsl:call-template name="year_to_date">
+								<xsl:with-param name="year" select="firstYear" />
+							</xsl:call-template>
+							<xsl:text>-01-01</xsl:text><!-- suggesting more accuracy, but without is its not valid -->	
 						</xsl:element>
 						<xsl:element name="acdm:until">
-							<xsl:value-of select="lastYear" />
+							<xsl:call-template name="year_to_date">
+								<xsl:with-param name="year" select="lastYear" />
+							</xsl:call-template>
+							<xsl:text>-12-31</xsl:text><!-- suggesting more accuracy, but without is its not valid -->				
 						</xsl:element>
 					</xsl:element>
 				</xsl:for-each>
@@ -232,13 +295,117 @@
 						</xsl:element>
 					</xsl:element>
 				</xsl:for-each>
-
+				<!-- spatial is mandetory, so we add one even if we have none! -->
+				<xsl:if test="not(location)">
+					<!-- box approximate for The European continent ;-) -->
+					<xsl:element name="acdm:spatial">
+						<xsl:comment>Not available, but this is the most likely range that covers it</xsl:comment>
+						<xsl:element name="acdm:placeName">
+							<xsl:text>Not available</xsl:text>
+						</xsl:element>
+						<xsl:element name="acdm:coordinateSystem">
+							<xsl:text>http://www.opengis.net/def/crs/EPSG/0/4326</xsl:text>
+						</xsl:element>
+						<xsl:element name="acdm:boundingBoxMinLat">
+							<xsl:text>34</xsl:text>
+						</xsl:element>
+						<xsl:element name="acdm:boundingBoxMinLon">
+							<xsl:text>-24</xsl:text>
+						</xsl:element>
+						<xsl:element name="acdm:boundingBoxMaxLat">
+							<xsl:text>72</xsl:text>
+						</xsl:element>
+						<xsl:element name="acdm:boundingBoxMaxLon">
+							<xsl:text>35</xsl:text>
+						</xsl:element>
+						<xsl:element name="acdm:country">
+							<xsl:text>European continent</xsl:text><!-- Not always true -->
+						</xsl:element>
+					</xsl:element>                
+				</xsl:if>
+				
+				<!-- DISTRIBUTION -->
+				<xsl:element name="acdm:distribution">
+					<xsl:element name="dcterms:title">
+						<xsl:text>DCCD Archive</xsl:text>
+					</xsl:element>
+					<xsl:element name="dcterms:issued">
+						<xsl:value-of select="stateChanged" />
+					</xsl:element>
+					<xsl:element name="dcterms:modified">
+						<xsl:value-of select="stateChanged" />
+					</xsl:element>
+					<xsl:element name="dcat:accessURL">
+						<!-- same as landingpage -->
+						<xsl:text>http://dendro.dans.knaw.nl/project/</xsl:text>
+						<xsl:value-of select="sid" />
+					</xsl:element>
+					<xsl:element name="acdm:publisher">
+						<!-- DANS distributes the data via the archive? -->
+						<xsl:element name="foaf:name"><xsl:text>Data Archiving and Networked Services (DANS)</xsl:text></xsl:element>
+						<xsl:element name="acdm:typeOfAnAgent"><xsl:text>Organization</xsl:text></xsl:element>
+						<xsl:element name="foaf:mbox"><xsl:text>info@dans.knaw.nl</xsl:text></xsl:element> 
+					</xsl:element>
+				</xsl:element>
+				
 			</acdm:collection>
 		</acdm:ariadneArchaeologicalResource>
 	</xsl:template>
 
 	<!-- =================================================================================== -->
+	<!-- convert a year (number) to a valid xs:date yyyy -->
+	<!-- =================================================================================== -->
+	<xsl:template name='year_to_date'>
+		<xsl:param name='year' />
+		<xsl:choose>
+			<xsl:when test="$year=''">
+				<xsl:text>2050</xsl:text><!-- in the future! -->
+			</xsl:when>
+			<xsl:when test="$year &lt; -9999">
+				<!-- don't padd with zeros -->
+				<xsl:value-of select="$year" />
+			</xsl:when>
+			<xsl:otherwise>        
+				<xsl:value-of select="format-number($year, '0000')" />
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+	
+	<!-- =================================================================================== -->
+	<!-- construct a person agent -->
+	<!-- =================================================================================== -->
+	<xsl:template name='person-agent'>
+		<xsl:param name='name' />
+		<xsl:element name="foaf:name">
+			<xsl:value-of select='$name' />
+		</xsl:element>
+		<xsl:element name="acdm:typeOfAnAgent">
+			<xsl:text>Person</xsl:text>
+		</xsl:element>
+		<xsl:element name="foaf:mbox">
+			<xsl:text>Not available</xsl:text>
+		</xsl:element>
+	</xsl:template>
+	
+	<!-- =================================================================================== -->
+	<!-- construct a organization agent -->
+	<!-- =================================================================================== -->
+	<xsl:template name='organization-agent'>
+		<xsl:param name='name' />
+		<xsl:element name="foaf:name">
+			<xsl:value-of select='$name' />
+		</xsl:element>
+		<xsl:element name="acdm:typeOfAnAgent">
+			<xsl:text>Organization</xsl:text>
+		</xsl:element>
+		<xsl:element name="foaf:mbox">
+			<xsl:text>Not available</xsl:text>
+		</xsl:element>
+	</xsl:template>
+	
+	<!-- =================================================================================== -->
 	<!-- Would be simpler if DCCD REST API already produced the URI's -->
+	<!-- =================================================================================== -->
 	<dccd:categorylist>
 		<dccd:category>
 			<dccd:label>archaeology</dccd:label>
