@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URL;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -45,26 +46,14 @@ public class DCCDMetaDataTransformer {
 	public static String transformXmlForOai(String xmlInStr, String type) throws TransformerException {
 		LOG.debug("\nBefore transform:\n" + xmlInStr);
 
-		//String xslRootPath = "/Users/paulboon/Documents/Development/dccd/dccd-oai/src/main/resources";
-		
-		// determine stylesheet based on the type
-		// try to find the specific stylesheet
-		//String xslFilePath = xslRootPath + "/" + "dccd_to_" + type + ".xsl"; // input xsl	
-		
-		//StreamSource xslSrc = getXslSourceFromFilePath(xslFilePath);
 		StreamSource xslSrc = getXslSourceFromResourcePath("/dccd_to_" + type + ".xsl");
-		
-		// Create a transform factory instance.
-		TransformerFactory tfactory = TransformerFactory.newInstance();
 
-		// Can't disable validation...
-		//tfactory.setValidating(false);
-		//tfactory.setFeature("http://xml.org/sax/features/validation", false);
-		//tfactory.setAttribute("http://xml.org/sax/features/validation", false);
-		
+		// Create a transform factory instance.
+		TransformerFactory tfactory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl",null);
+
 		// Create a transformer for the stylesheet.
 		Transformer transformer = tfactory.newTransformer(xslSrc);
-
+		
 		// prepare input and output
 		StringReader xmlIn = new StringReader(xmlInStr);
 		StringWriter xmlOut = new StringWriter();		
@@ -72,7 +61,7 @@ public class DCCDMetaDataTransformer {
 		// Transform the source XML
 		transformer.transform(new StreamSource(xmlIn),
 				new StreamResult(xmlOut ));
-		
+
 		LOG.debug("\nAfter transform:\n" + xmlOut.toString());
 		return xmlOut.toString();
 	}
@@ -110,7 +99,11 @@ public class DCCDMetaDataTransformer {
 			// bail out 
 			throw new TransformerException("Stylesheet not found: " + xslPath);
 		}
-
-		return new StreamSource(inputStream);
+		StreamSource src = new StreamSource(inputStream);
+		
+		// without setting the systemId; the xsl lookup with document('') won't work
+		URL url = DCCDMetaDataTransformer.class.getResource(xslPath);
+		src.setSystemId(url.toExternalForm());
+		return src;
 	}
 }
