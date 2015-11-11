@@ -176,7 +176,7 @@
 						</mapping>
 					</mappings>
 					<requires>
-						<require>dccd-http</require>
+						<require>dccd-http java-devel</require>
 					</requires>		
 				</configuration>
 			</plugin>
