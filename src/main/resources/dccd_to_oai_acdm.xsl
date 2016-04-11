@@ -27,16 +27,17 @@
 	</xsl:template>
 
 	<xsl:template match="project">
-		<acdm:ariadneArchaeologicalResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		<acdm:ariadne xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 			xmlns:acdm="http://registry.ariadne-infrastructure.eu/"
 			xmlns:dcat="http://www.w3.org/ns/dcat#" xmlns:dcterms="http://purl.org/dc/terms/"
 			xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 			xmlns:skos="http://www.w3.org/2004/02/skos/core#"
 			xmlns:foaf="http://xmlns.com/foaf/0.1/"
 			xsi:schemaLocation="http://registry.ariadne-infrastructure.eu/ http://registry.ariadne-infrastructure.eu/schema_definition/6.8/acdm.xsd">
+			<acdm:ariadneArchaeologicalResource>
 			<acdm:collection>
 				<xsl:element name="dcterms:isPartOf">
-					<xsl:text>DCCD</xsl:text>
+					<xsl:text>dccd</xsl:text>
 				</xsl:element>
 
 				<!-- PUBLISHER -->
@@ -48,19 +49,59 @@
 
 				<!-- CONTRIBUTER -->
 				<!-- in acdm contributers are mandatory, it makes no sense, but here it is -->
+				<!-- 
 				<xsl:element name="acdm:contributor">
 					<xsl:call-template name="person-agent">
 						<xsl:with-param name="name" select="'Not available'" />
 					</xsl:call-template>
 				</xsl:element>
+				 -->
+				<!-- same as owner -->
+				<xsl:for-each select="ownerOrganizationId">
+					<xsl:element name="acdm:contributor">
+						<xsl:element name="foaf:name">
+							<xsl:value-of select="text()" />
+						</xsl:element>
+						<xsl:element name="acdm:typeOfAnAgent">
+							<xsl:text>Organization</xsl:text>
+						</xsl:element>
+						<xsl:element name="foaf:mbox">
+							<xsl:text>Not available</xsl:text>
+						</xsl:element>
+					</xsl:element>
+				</xsl:for-each>
+				<!-- add investigator (person) if there is one -->
+				<xsl:if test="investigator">
+					<xsl:element name="acdm:contributor">
+						<xsl:call-template name="person-agent">
+							<xsl:with-param name="name" select="investigator" />
+						</xsl:call-template>
+					</xsl:element>    					
+				</xsl:if>
 
 				<!-- CREATOR -->
 				<!-- we don't have it -->
+				<!--
 				<xsl:element name="acdm:creator">
 					<xsl:call-template name="person-agent">
 						<xsl:with-param name="name" select="'Not available'" />
 					</xsl:call-template>
-				</xsl:element>				
+				</xsl:element>
+				-->
+				<!-- same as owner -->
+				<xsl:for-each select="ownerOrganizationId">
+					<xsl:element name="acdm:creator">
+						<xsl:element name="foaf:name">
+							<xsl:value-of select="text()" />
+						</xsl:element>
+						<xsl:element name="acdm:typeOfAnAgent">
+							<xsl:text>Organization</xsl:text>
+						</xsl:element>
+						<xsl:element name="foaf:mbox">
+							<xsl:text>Not available</xsl:text>
+						</xsl:element>
+					</xsl:element>
+				</xsl:for-each>
 				
 				<!-- OWNER -->
 				<!-- This should indicate an Agent, but we can't guarantee uniquenes -->
@@ -218,7 +259,13 @@
 					</xsl:element>
 				</xsl:for-each>			
 
-				<!-- RIGHTS -->
+				<!-- ACCESSPOLICY -->
+				<!-- Same for whole collection, but we want to specify 
+                this here -->
+				<acdm:accessPolicy>
+					<xsl:text>http://dendro.dans.knaw.nl/termsofuse</xsl:text>
+				</acdm:accessPolicy>
+				
 				<!-- accessRights -->
 				<xsl:for-each select="permission">
 					<xsl:element name="dcterms:accessRights">
@@ -233,6 +280,17 @@
 						</xsl:choose>
 					</xsl:element>
 				</xsl:for-each>
+				
+				<!-- RIGHTS -->
+				<!-- same as policy -->
+				<dc:rights>
+					<xsl:text>http://dendro.dans.knaw.nl/termsofuse</xsl:text>
+				</dc:rights>
+				
+				<!-- AUDIENCE -->
+				<!-- Same as for whole collection, but we want to specify 
+                this here explicitly -->
+				<dcterms:audience><xsl:text>Dendrochronologists, Archaeologists, Historians</xsl:text></dcterms:audience>
 				
 				<!-- archaeologicalResourceType previously ARIADNESUBJECT -->
 				<xsl:element name="acdm:archaeologicalResourceType">
@@ -249,6 +307,7 @@
 							<!-- could try to get ABR concept from the year-range, 
 								but not the wood is from all over europe, so ABR makes no sense! -->
 							<!-- Holocene probably covers all our wood samples ;-) -->
+							<!-- 
 							<xsl:comment>Not available, but this is the most likely range that covers it</xsl:comment>
 							<xsl:element name="skos:Concept">
 								<xsl:attribute name="rdf:about">
@@ -256,7 +315,14 @@
 								</xsl:attribute>
 								<xsl:element name="skos:prefLabel">
 									<xsl:text>Holocene</xsl:text>
-								</xsl:element>
+								</xsl:element>					
+							</xsl:element>
+								 -->
+							<xsl:comment>Not available</xsl:comment>
+							<xsl:element name="skos:Concept">
+								<xsl:attribute name="rdf:about">
+									<xsl:text>https://en.wikipedia.org/wiki/I_know_that_I_know_nothing</xsl:text>
+								</xsl:attribute>
 							</xsl:element>
 						</xsl:element>
 						<xsl:element name="acdm:from">
@@ -297,12 +363,13 @@
 				</xsl:for-each>
 				<!-- spatial is mandetory, so we add one even if we have none! -->
 				<xsl:if test="not(location)">
-					<!-- box approximate for The European continent ;-) -->
 					<xsl:element name="acdm:spatial">
-						<xsl:comment>Not available, but this is the most likely range that covers it</xsl:comment>
+						<xsl:comment>Not available</xsl:comment>
 						<xsl:element name="acdm:placeName">
 							<xsl:text>Not available</xsl:text>
 						</xsl:element>
+						<!-- box approximate for The European continent ;-) -->
+						<!-- 
 						<xsl:element name="acdm:coordinateSystem">
 							<xsl:text>http://www.opengis.net/def/crs/EPSG/0/4326</xsl:text>
 						</xsl:element>
@@ -318,8 +385,9 @@
 						<xsl:element name="acdm:boundingBoxMaxLon">
 							<xsl:text>35</xsl:text>
 						</xsl:element>
+						 -->
 						<xsl:element name="acdm:country">
-							<xsl:text>European continent</xsl:text><!-- Not always true -->
+							<xsl:text>Not available</xsl:text>
 						</xsl:element>
 					</xsl:element>                
 				</xsl:if>
@@ -350,6 +418,7 @@
 				
 			</acdm:collection>
 		</acdm:ariadneArchaeologicalResource>
+		</acdm:ariadne>
 	</xsl:template>
 
 	<!-- =================================================================================== -->
