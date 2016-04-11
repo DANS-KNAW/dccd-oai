@@ -9,7 +9,7 @@
 	<!-- metadata for ARIADNE Catalogue Data Model (ACDM) -->
 	<!-- converting from internal dccd xml (from RESTfull API) -->
 	<!-- ==================================================== -->
-	
+
 	<xsl:output indent="yes" encoding="UTF-8"
 		omit-xml-declaration="yes" />
 	<xsl:strip-space elements="*" />
@@ -41,11 +41,13 @@
 				</xsl:element>
 
 				<!-- PUBLISHER -->
+				<!-- We don't have the publisher of the original data available, 
+					 but ARIADNE want to have the publisher of the digital online archive and that is DANS -->
 				<xsl:element name="acdm:publisher">
-					<xsl:call-template name="organization-agent">
-						<xsl:with-param name="name" select="'Not available'" />
-					</xsl:call-template>
-				</xsl:element>         
+					<foaf:name>Data Archiving and Networked Services (DANS)</foaf:name>
+					<acdm:typeOfAnAgent>Organization</acdm:typeOfAnAgent>
+					<foaf:mbox>info@dans.knaw.nl</foaf:mbox>
+				</xsl:element>
 
 				<!-- CONTRIBUTER -->
 				<!-- in acdm contributers are mandatory, it makes no sense, but here it is -->
@@ -76,7 +78,7 @@
 						<xsl:call-template name="person-agent">
 							<xsl:with-param name="name" select="investigator" />
 						</xsl:call-template>
-					</xsl:element>    					
+					</xsl:element>
 				</xsl:if>
 
 				<!-- CREATOR -->
@@ -102,7 +104,7 @@
 						</xsl:element>
 					</xsl:element>
 				</xsl:for-each>
-				
+
 				<!-- OWNER -->
 				<!-- This should indicate an Agent, but we can't guarantee uniquenes -->
 				<xsl:for-each select="ownerOrganizationId">
@@ -118,14 +120,14 @@
 						</xsl:element>
 					</xsl:element>
 				</xsl:for-each>
-				
+
 				<!--  TECHNICAL RESPONSIBLE, we don't have it! -->
 				<!-- acdm:technicalResponsible, could be analyst -->
 				<xsl:element name="acdm:technicalResponsible">
 					<xsl:call-template name="person-agent">
 						<xsl:with-param name="name" select="'Not available'" />
 					</xsl:call-template>
-				</xsl:element>    
+				</xsl:element>
 
 				<!-- SUBJECT -->
 				<!-- make validation work and specify dendrochronology as subject -->
@@ -181,17 +183,17 @@
 				<xsl:element name="dcterms:title">
 					<xsl:value-of select="title" />
 				</xsl:element>
-				
+
 				<!-- DESCRIPTION -->
 				<!-- NO dcterms:description; The TRiDaS description is not Open Access information in DCCD -->
-				
+
 				<!-- DATE ISSUED -->
 				<xsl:for-each select="stateChanged">
 					<xsl:element name="dcterms:issued">
 						<xsl:value-of select="text()" />
 					</xsl:element>
 				</xsl:for-each>
-				
+
 				<!-- DATE MODIFIED -->
 				<!-- same as date issued, we only have the (last) archived date we could 
 				try to get it from deeper in the TRiDaS -->
@@ -200,7 +202,7 @@
 						<xsl:value-of select="text()" />
 					</xsl:element>
 				</xsl:for-each>
-				
+
 				<!-- ORIGINAL IDENTIFIER -->
 				<!-- repository id -->
 				<xsl:for-each select="sid">
@@ -218,7 +220,7 @@
 					<xsl:value-of select="identifier" />
 				</xsl:element>
  				-->
-				
+
 				<!-- Note: If we can only have one subject we take the most important 
 				and add the others as keywords! But they should be uri's from SKOS vocabularies. -->
 				<!-- KEYWORD dcat:keyword -->
@@ -242,14 +244,14 @@
 				<xsl:element name="dcat:keyword">
 					<xsl:value-of select="identifier" />
 				</xsl:element>
-				
+
 				<!-- LANGUAGE -->
 				<xsl:for-each select="language">
 					<xsl:element name="dc:language">
 						<xsl:value-of select="text()" />
 					</xsl:element>
 				</xsl:for-each>
-				
+
 				<!-- LANDING PAGE -->
 				<!-- use DCCD identifier -->
 				<xsl:for-each select="sid">
@@ -257,7 +259,7 @@
 						<xsl:text>http://dendro.dans.knaw.nl/project/</xsl:text>
 						<xsl:value-of select="text()" />
 					</xsl:element>
-				</xsl:for-each>			
+				</xsl:for-each>
 
 				<!-- ACCESSPOLICY -->
 				<!-- Same for whole collection, but we want to specify 
@@ -265,7 +267,7 @@
 				<acdm:accessPolicy>
 					<xsl:text>http://dendro.dans.knaw.nl/termsofuse</xsl:text>
 				</acdm:accessPolicy>
-				
+
 				<!-- accessRights -->
 				<xsl:for-each select="permission">
 					<xsl:element name="dcterms:accessRights">
@@ -280,25 +282,25 @@
 						</xsl:choose>
 					</xsl:element>
 				</xsl:for-each>
-				
+
 				<!-- RIGHTS -->
 				<!-- same as policy -->
 				<dc:rights>
 					<xsl:text>http://dendro.dans.knaw.nl/termsofuse</xsl:text>
 				</dc:rights>
-				
+
 				<!-- AUDIENCE -->
 				<!-- Same as for whole collection, but we want to specify 
                 this here explicitly -->
 				<dcterms:audience><xsl:text>Dendrochronologists, Archaeologists, Historians</xsl:text></dcterms:audience>
-				
+
 				<!-- archaeologicalResourceType previously ARIADNESUBJECT -->
 				<xsl:element name="acdm:archaeologicalResourceType">
 					<xsl:text>Scientific datasets</xsl:text>
 				</xsl:element>
 				<!-- <dc:type><xsl:text>name=TRiDaS; URI=http://www.tridas.org</xsl:text></dc:type> 
 				<dc:format>application/xml</dc:format> -->
-				
+
 				<!-- TEMPORAL -->
 				<xsl:for-each select="timeRange">
 					<xsl:element name="acdm:temporal">
@@ -315,9 +317,11 @@
 								</xsl:attribute>
 								<xsl:element name="skos:prefLabel">
 									<xsl:text>Holocene</xsl:text>
-								</xsl:element>					
+								</xsl:element>
 							</xsl:element>
 								 -->
+							<!-- We would like place the textual representation of the period (range) here, but we need a concept so we can not -->
+							<!-- We have a date and a location, so it would be nice if there was a webservice that produced a name -->
 							<xsl:comment>Not available</xsl:comment>
 							<xsl:element name="skos:Concept">
 								<xsl:attribute name="rdf:about">
@@ -329,13 +333,13 @@
 							<xsl:call-template name="year_to_date">
 								<xsl:with-param name="year" select="firstYear" />
 							</xsl:call-template>
-							<xsl:text>-01-01</xsl:text><!-- suggesting more accuracy, but without is its not valid -->	
+							<xsl:text>-01-01</xsl:text><!-- suggesting more accuracy, but without is its not valid -->
 						</xsl:element>
 						<xsl:element name="acdm:until">
 							<xsl:call-template name="year_to_date">
 								<xsl:with-param name="year" select="lastYear" />
 							</xsl:call-template>
-							<xsl:text>-12-31</xsl:text><!-- suggesting more accuracy, but without is its not valid -->				
+							<xsl:text>-12-31</xsl:text><!-- suggesting more accuracy, but without is its not valid -->
 						</xsl:element>
 					</xsl:element>
 				</xsl:for-each>
@@ -345,7 +349,9 @@
 					<!-- point -->
 					<xsl:element name="acdm:spatial">
 						<xsl:element name="acdm:placeName">
-							<xsl:text>Not available</xsl:text>
+							<!-- We don't have the placename (could do search via geonames)
+							The title mostly contains the placename but better use the coordinates (lat,lng) here so the UI will show something reasonable -->
+							<xsl:value-of select="lat" /><xsl:text>, </xsl:text><xsl:value-of select="lng" />
 						</xsl:element>
 						<xsl:element name="acdm:coordinateSystem">
 							<xsl:text>http://www.opengis.net/def/crs/EPSG/0/4326</xsl:text>
@@ -389,9 +395,9 @@
 						<xsl:element name="acdm:country">
 							<xsl:text>Not available</xsl:text>
 						</xsl:element>
-					</xsl:element>                
+					</xsl:element>
 				</xsl:if>
-				
+
 				<!-- DISTRIBUTION -->
 				<xsl:element name="acdm:distribution">
 					<xsl:element name="dcterms:title">
@@ -415,7 +421,7 @@
 						<xsl:element name="foaf:mbox"><xsl:text>info@dans.knaw.nl</xsl:text></xsl:element> 
 					</xsl:element>
 				</xsl:element>
-				
+
 			</acdm:collection>
 		</acdm:ariadneArchaeologicalResource>
 		</acdm:ariadne>
