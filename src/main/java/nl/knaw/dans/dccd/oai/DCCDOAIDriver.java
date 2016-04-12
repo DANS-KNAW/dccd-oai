@@ -200,8 +200,8 @@ public class DCCDOAIDriver  implements OAIDriver {
 
 		// ARIADNE acdm
 		list.add(new MetadataFormatImpl("oai_acdm", 
-				"http://example.org/oai_acdm/",
-				"http://example.org/oai_acdm.xsd"));
+				"http://registry.ariadne-infrastructure.eu/",
+				"http://registry.ariadne-infrastructure.eu/schema_definition/6.8/acdm.xsd"));
 		
 		return list;
 	}
